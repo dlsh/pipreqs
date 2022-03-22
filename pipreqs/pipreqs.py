@@ -138,7 +138,10 @@ def get_all_imports(
         # Ex: from django.conf --> django.conf. But we only want django
         # as an import.
         cleaned_name, _, _ = name.partition('.')
-        imports.add(cleaned_name)
+        if cleaned_name == 'google':
+            imports.add(name.replace('.', '-'))
+        else:
+            imports.add(cleaned_name)
 
     packages = imports - (set(candidates) & imports)
     logging.debug('Found packages: {0}'.format(packages))
@@ -216,11 +219,16 @@ def get_locally_installed_packages(encoding=None):
                                 if len(package) > 1:
                                     version = package[1].replace(
                                         ".dist", "").replace(".egg", "")
-
-                                packages[i_item] = {
-                                    'version': version,
-                                    'name': package[0]
-                                }
+                                if i_item == 'google':
+                                    packages[package[0].replace('_', '-')] = {
+                                        'version': version,
+                                        'name': package[0].replace('_', '-')
+                                    }
+                                else:
+                                    packages[i_item] = {
+                                        'version': version,
+                                        'name': package[0]
+                                    }
     return packages
 
 
